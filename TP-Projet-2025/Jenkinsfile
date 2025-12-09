@@ -47,7 +47,7 @@ pipeline {
                         sh """
                         mvn sonar:sonar \
                           -Dsonar.projectKey=amenallahboukhris_devops \
-                          -Dsonar.host.url=http://<IP-ou-URL-de-Sonar>:9000 \
+                          -Dsonar.host.url=http://192.168.33.10:9000 \
                           -Dsonar.login=${SONAR_TOKEN}
                         """
                     }
@@ -70,3 +70,4 @@ pipeline {
         }
     }
 }
+
