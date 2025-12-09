@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'JDK17'      // à adapter si tu utilises une autre version dans Jenkins
+        maven 'MAVEN'    // le nom que tu as donné à Maven dans Jenkins
+    }
+
+    environment {
+        SONAR_TOKEN = credentials('sonar-token')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout([$class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    userRemoteConfigs: [[
+                        url: 'https://github.com/amenallahbk/amenallahboukhris_devops.git',
+                        credentialsId: 'git-credentials'
+                    ]]
+                ])
+            }
+        }
+
+        stage('Clean') {
+            steps {
+                sh "mvn clean"
+            }
+        }
+
+        stage('Compile') {
+            steps {
+                sh "mvn compile"
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh """
+                    mvn sonar:sonar \
+                      -Dsonar.projectKey=amenallahboukhris_devops \
+                      -Dsonar.host.url=http://<IP-ou-URL-de-Sonar>:9000 \
+                      -Dsonar.login=${SONAR_TOKEN}
+                    """
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh "mvn package -DskipTests"
+            }
+        }
+    }
+
+    post {
+        success {
+            archiveArtifacts artifacts: 'target/*.jar'
+        }
+    }
+}
