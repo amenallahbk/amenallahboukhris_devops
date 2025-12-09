@@ -3,7 +3,7 @@ pipeline {
 
     tools {
         jdk 'JAVA_HOME'      // à adapter si tu utilises une autre version dans Jenkins
-        maven 'M2_HOME'    // le nom que tu as donné à Maven dans Jenkins
+        maven 'M2_HOME'      // le nom que tu as donné à Maven dans Jenkins
     }
 
     environment {
@@ -26,40 +26,47 @@ pipeline {
 
         stage('Clean') {
             steps {
-                sh "mvn clean"
+                dir('TP-Projet-2025/TP-Projet-2025') {
+                    sh "mvn clean"
+                }
             }
         }
 
         stage('Compile') {
             steps {
-                sh "mvn compile"
+                dir('TP-Projet-2025/TP-Projet-2025') {
+                    sh "mvn compile"
+                }
             }
         }
 
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh """
-                    mvn sonar:sonar \
-                      -Dsonar.projectKey=amenallahboukhris_devops \
-                      -Dsonar.host.url=http://<IP-ou-URL-de-Sonar>:9000 \
-                      -Dsonar.login=${SONAR_TOKEN}
-                    """
+                dir('TP-Projet-2025/TP-Projet-2025') {
+                    withSonarQubeEnv('sonarqube') {
+                        sh """
+                        mvn sonar:sonar \
+                          -Dsonar.projectKey=amenallahboukhris_devops \
+                          -Dsonar.host.url=http://<IP-ou-URL-de-Sonar>:9000 \
+                          -Dsonar.login=${SONAR_TOKEN}
+                        """
+                    }
                 }
             }
         }
 
         stage('Package') {
             steps {
-                sh "mvn package -DskipTests"
+                dir('TP-Projet-2025/TP-Projet-2025') {
+                    sh "mvn package -DskipTests"
+                }
             }
         }
     }
 
     post {
         success {
-            archiveArtifacts artifacts: 'target/*.jar'
+            archiveArtifacts artifacts: 'TP-Projet-2025/TP-Projet-2025/target/*.jar'
         }
     }
 }
-
