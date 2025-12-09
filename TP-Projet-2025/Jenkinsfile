@@ -7,7 +7,7 @@ pipeline {
     }
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')
+        SONAR_TOKEN = credentials('sonar-token')  // ton token SonarQube
     }
 
     stages {
@@ -26,7 +26,7 @@ pipeline {
 
         stage('Clean') {
             steps {
-                dir('TP-Projet-2025/TP-Projet-2025') {
+                dir('TP-Projet-2025') {   // chemin corrigé
                     sh "mvn clean"
                 }
             }
@@ -34,7 +34,7 @@ pipeline {
 
         stage('Compile') {
             steps {
-                dir('TP-Projet-2025/TP-Projet-2025') {
+                dir('TP-Projet-2025') {
                     sh "mvn compile"
                 }
             }
@@ -42,7 +42,7 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                dir('TP-Projet-2025/TP-Projet-2025') {
+                dir('TP-Projet-2025') {
                     withSonarQubeEnv('sonarqube') {
                         sh """
                         mvn sonar:sonar \
@@ -57,7 +57,7 @@ pipeline {
 
         stage('Package') {
             steps {
-                dir('TP-Projet-2025/TP-Projet-2025') {
+                dir('TP-Projet-2025') {
                     sh "mvn package -DskipTests"
                 }
             }
@@ -66,7 +66,7 @@ pipeline {
 
     post {
         success {
-            archiveArtifacts artifacts: 'TP-Projet-2025/TP-Projet-2025/target/*.jar'
+            archiveArtifacts artifacts: 'TP-Projet-2025/target/*.jar'
         }
     }
 }
