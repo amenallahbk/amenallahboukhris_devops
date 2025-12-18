@@ -27,7 +27,7 @@ pipeline {
 
         stage('Clean') {
             steps {
-                dir('TP-Projet-2025') {   // chemin corrigé
+                dir('TP-Projet-2025') {
                     sh "mvn clean"
                 }
             }
@@ -73,6 +73,17 @@ pipeline {
                         echo $DOCKERHUB_TOKEN | docker login -u amounboukhris --password-stdin
                         docker push amounboukhris/tpfoyer:1.0
                         '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                withEnv(['KUBECONFIG=/var/lib/jenkins/.kube/config']) {
+                    dir('TP-Projet-2025') {
+                        sh 'kubectl apply -f deployment.yaml'
+                        sh 'kubectl apply -f service.yaml'
                     }
                 }
             }
