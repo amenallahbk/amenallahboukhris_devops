@@ -7,7 +7,8 @@ pipeline {
     }
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')  // ton token SonarQube
+        SONAR_TOKEN = credentials('sonar-token')        // ton token SonarQube
+        DOCKERHUB_TOKEN = credentials('DOCKERHUB_TOKEN') // ton token Docker Hub
     }
 
     stages {
@@ -62,6 +63,21 @@ pipeline {
                 }
             }
         }
+
+        stage('Build & Push Docker Image') {
+            steps {
+                dir('TP-Projet-2025') {
+                    script {
+                        sh '''
+                        docker build -t amounboukhris/tpfoyer:1.0 .
+                        echo $DOCKERHUB_TOKEN | docker login -u amounboukhris --password-stdin
+                        docker push amounboukhris/tpfoyer:1.0
+                        '''
+                    }
+                }
+            }
+        }
+
     }
 
     post {
@@ -70,4 +86,3 @@ pipeline {
         }
     }
 }
-
