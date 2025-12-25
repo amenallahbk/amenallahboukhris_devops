@@ -2,13 +2,13 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JAVA_HOME'      // à adapter si tu utilises une autre version dans Jenkins
-        maven 'M2_HOME'      // le nom que tu as donné à Maven dans Jenkins
+        jdk 'JAVA_HOME'      // Nom du JDK configuré dans Jenkins
+        maven 'M2_HOME'      // Nom de Maven configuré dans Jenkins
     }
 
     environment {
-        SONAR_TOKEN = credentials('sonar-token')        // ton token SonarQube
-        DOCKERHUB_TOKEN = credentials('DOCKERHUB_TOKEN') // ton token Docker Hub
+        SONAR_TOKEN     = credentials('sonar-token')
+        DOCKERHUB_TOKEN = credentials('DOCKERHUB_TOKEN')
     }
 
     stages {
@@ -28,7 +28,7 @@ pipeline {
         stage('Clean') {
             steps {
                 dir('TP-Projet-2025') {
-                    sh "mvn clean"
+                    sh 'mvn clean'
                 }
             }
         }
@@ -36,7 +36,7 @@ pipeline {
         stage('Compile') {
             steps {
                 dir('TP-Projet-2025') {
-                    sh "mvn compile"
+                    sh 'mvn compile'
                 }
             }
         }
@@ -59,7 +59,7 @@ pipeline {
         stage('Package') {
             steps {
                 dir('TP-Projet-2025') {
-                    sh "mvn package -DskipTests"
+                    sh 'mvn package -DskipTests'
                 }
             }
         }
@@ -67,14 +67,18 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 dir('TP-Projet-2025') {
-                    script {
-                        sh '''
-                        docker build -t amounboukhris/tpfoyer:1.0 .
-                        echo $DOCKERHUB_TOKEN | docker login -u amounboukhris --password-stdin
-                        docker push amounboukhris/tpfoyer:1.0
-                        '''
-                    }
+                    sh '''
+                    docker build -t amounboukhris/tpfoyer:1.0 .
+                    echo $DOCKERHUB_TOKEN | docker login -u amounboukhris --password-stdin
+                    docker push amounboukhris/tpfoyer:1.0
+                    '''
                 }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f TP-Projet-2025/k8s/'
             }
         }
     }
@@ -82,6 +86,9 @@ pipeline {
     post {
         success {
             archiveArtifacts artifacts: 'TP-Projet-2025/target/*.jar'
+        }
+        failure {
+            echo '❌ Pipeline échoué'
         }
     }
 }
