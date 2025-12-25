@@ -68,7 +68,7 @@ pipeline {
     steps {
         dir('TP-Projet-2025') {
             script {
-                docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                docker.withRegistry('https://index.docker.io/v1/', 'DOCKERHUB_TOKEN') {
                     def image = docker.build("amounboukhris/tpfoyer:1.0")
                     image.push()
                 }
