@@ -46,7 +46,7 @@ pipeline {
                 dir('TP-Projet-2025') {
                     withSonarQubeEnv('sonarqube') {
                         sh """
-                        mvn sonar:sonar \
+                        mvn org.sonarsource.scanner.maven:sonar-maven-plugin:3.9.1.2184:sonar \
                           -Dsonar.projectKey=amenallahboukhris_devops \
                           -Dsonar.host.url=http://192.168.33.10:9000 \
                           -Dsonar.login=${SONAR_TOKEN}
