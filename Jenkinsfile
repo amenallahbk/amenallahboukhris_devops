@@ -65,16 +65,17 @@ pipeline {
         }
 
         stage('Build & Push Docker Image') {
-            steps {
-                dir('TP-Projet-2025') {
-                    sh '''
-                    docker build -t amounboukhris/tpfoyer:1.0 .
-                    echo $DOCKERHUB_TOKEN | docker login -u amounboukhris --password-stdin
-                    docker push amounboukhris/tpfoyer:1.0
-                    '''
+    steps {
+        dir('TP-Projet-2025') {
+            script {
+                docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                    def image = docker.build("amounboukhris/tpfoyer:1.0")
+                    image.push()
                 }
             }
         }
+    }
+}
 
         stage('Deploy to Kubernetes') {
             steps {
