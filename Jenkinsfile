@@ -85,11 +85,34 @@ pipeline {
     }
 
     post {
-        success {
-            archiveArtifacts artifacts: 'TP-Projet-2025/target/*.jar'
-        }
-        failure {
-            echo '❌ Pipeline échoué'
-        }
+    success {
+        archiveArtifacts artifacts: 'TP-Projet-2025/target/*.jar'
+
+        emailext (
+            subject: "✅ SUCCESS : Pipeline Jenkins - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """
+                <h2>Pipeline exécuté avec succès 🎉</h2>
+                <p><b>Projet :</b> ${env.JOB_NAME}</p>
+                <p><b>Build :</b> #${env.BUILD_NUMBER}</p>
+                <p><b>Status :</b> SUCCESS ✅</p>
+                <p><b>URL :</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+            """,
+            to: "amenallah.boukhris@gmail.com"
+        )
+    }
+
+    failure {
+        emailext (
+            subject: "❌ FAILURE : Pipeline Jenkins - ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+            body: """
+                <h2>Pipeline échoué ❌</h2>
+                <p><b>Projet :</b> ${env.JOB_NAME}</p>
+                <p><b>Build :</b> #${env.BUILD_NUMBER}</p>
+                <p><b>Status :</b> FAILURE ❌</p>
+                <p><b>Logs :</b> <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+            """,
+            to: "amenallah.boukhris@gmail.com"
+        )
     }
 }
+
